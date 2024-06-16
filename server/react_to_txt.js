@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
+const ignore = require('ignore');
 
-const createTxtFromReactApp = (rootFolder, outputFile = 'appOutput.txt') => {
+const createTxtFromReactApp = (rootFolder, outputFile = 'Project.txt') => {
   const output = fs.createWriteStream(outputFile, { encoding: 'utf-8' });
 
   const walkSync = (dir, filelist = []) => {
@@ -17,12 +18,20 @@ const createTxtFromReactApp = (rootFolder, outputFile = 'appOutput.txt') => {
   };
 
   const files = walkSync(rootFolder);
+  const ig = ignore().add(
+    fs.readFileSync('../.gitignore', 'utf-8').split('\n')
+  );
+
+  ig.add(['*.jpg', '*.png', '*.svg', 'package-lock.json', 'LICENSE', 'README.md']);
 
   files.forEach(filepath => {
     if (filepath.includes('node_modules') || filepath.includes('.git') || filepath.includes('build') || filepath.includes('Node') || filepath.includes('dist')) {
       return;
     }
     if (path.basename(filepath).startsWith('._')) {
+      return;
+    }
+    if (ig.ignores(path.relative(rootFolder, filepath))) {
       return;
     }
 
