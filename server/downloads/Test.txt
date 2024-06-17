@@ -1,0 +1,2534 @@
+
+
+client/.eslintrc.cjs
+
+ module.exports = {
+   root: true,
+   env: { browser: true, es2020: true },
+   extends: [
+     'eslint:recommended',
+     'plugin:react/recommended',
+     'plugin:react/jsx-runtime',
+     'plugin:react-hooks/recommended',
+   ],
+   ignorePatterns: ['dist', '.eslintrc.cjs'],
+   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
+   settings: { react: { version: '18.2' } },
+   plugins: ['react-refresh'],
+   rules: {
+     'react/jsx-no-target-blank': 'off',
+     'react-refresh/only-export-components': [
+       'warn',
+       { allowConstantExport: true },
+     ],
+   },
+ }
+ 
+
+
+client/axios.Instance.js
+
+ import axios from 'axios';
+ 
+ const axiosInstance = axios.create({
+     baseURL: 'http://localhost:3000',
+ });
+ 
+ axiosInstance.interceptors.request.use((config) => {
+     const token = localStorage.getItem('token');
+     if (token) {
+         config.headers.Authorization = `Bearer ${token}`;
+     }
+     return config;
+ });
+ 
+ export default axiosInstance;
+ 
+
+
+client/index.html
+
+ <!doctype html>
+ <html lang="en">
+   <head>
+     <meta charset="UTF-8" />
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.css" />
+     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brackets-viewer@latest/dist/brackets-viewer.min.js"></script>
+     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <title>GoodGameOrg</title>
+   </head>
+   <body>
+     <div id="root"></div>
+     <script type="module" src="/src/main.jsx"></script>
+   </body>
+ </html>
+ 
+
+
+client/package.json
+
+ {
+   "name": "client",
+   "private": true,
+   "version": "0.0.0",
+   "type": "module",
+   "scripts": {
+     "dev": "vite",
+     "build": "vite build",
+     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+     "preview": "vite preview"
+   },
+   "dependencies": {
+     "@emotion/react": "^11.11.4",
+     "@emotion/styled": "^11.11.5",
+     "@mui/icons-material": "^5.15.20",
+     "@mui/material": "^5.15.20",
+     "react": "^18.2.0",
+     "react-dom": "^18.2.0",
+     "react-icons": "^5.2.1",
+     "react-router-dom": "^6.23.1",
+     "styled-components": "^6.1.11"
+   },
+   "devDependencies": {
+     "@types/react": "^18.2.66",
+     "@types/react-dom": "^18.2.22",
+     "@vitejs/plugin-react": "^4.2.1",
+     "eslint": "^8.57.0",
+     "eslint-plugin-react": "^7.34.1",
+     "eslint-plugin-react-hooks": "^4.6.0",
+     "eslint-plugin-react-refresh": "^0.4.6",
+     "vite": "^5.2.0"
+   }
+ }
+ 
+
+
+client/src/App.css
+
+ #root {
+   max-width: 1280px;
+   margin: 0 auto;
+   padding: 2rem;
+   text-align: center;
+ }
+ 
+ .logo {
+   height: 6em;
+   padding: 1.5em;
+   will-change: filter;
+   transition: filter 300ms;
+ }
+ .logo:hover {
+   filter: drop-shadow(0 0 2em #646cffaa);
+ }
+ .logo.react:hover {
+   filter: drop-shadow(0 0 2em #61dafbaa);
+ }
+ 
+ @keyframes logo-spin {
+   from {
+     transform: rotate(0deg);
+   }
+   to {
+     transform: rotate(360deg);
+   }
+ }
+ 
+ @media (prefers-reduced-motion: no-preference) {
+   a:nth-of-type(2) .logo {
+     animation: logo-spin infinite 20s linear;
+   }
+ }
+ 
+ .card {
+   padding: 2em;
+ }
+ 
+ .read-the-docs {
+   color: #888;
+ }
+ 
+ .AddaLeague{
+ background-color: rgb(54, 54, 105);
+ border-radius: 4px;
+ border-style: solid;
+ border-width: 2px;
+ border-color: rgb(133, 98, 197);
+ padding: 12px;
+ margin-top: 100px;
+ line-height: 32px;
+ position: absolute;
+ left: 90px;
+ width: 400px;
+ }
+ 
+ .AddTeams{
+ background-color: rgb(54, 54, 105);
+ border-radius: 4px;
+ border-style: solid;
+ border-width: 2px;
+ border-color: rgb(133, 98, 197);
+ padding: 12px;
+ margin-top: 100px;
+ line-height: 32px;
+ position: absolute;
+ right: 90px;
+ width: 400px;
+ height: fit-content;
+ }
+ 
+ .TournamentsBox{
+ background-color: rgb(54, 54, 105);
+ border-radius: 4px;
+ border-style: solid;
+ border-width: 2px;
+ border-color: rgb(133, 98, 197);
+   position: center;
+   margin-top: 100px;
+   width: 600px;
+   height: 365px;
+ }
+ 
+ .TournTitle{
+   font-size: 30px;
+   color: white;
+ }
+
+
+client/src/App.jsx
+
+ import { useState } from 'react';
+ import React from 'react';
+ import './App.css'
+ import Footer from './components/Footer';
+ import Navbar from './components/Navbar';
+ import {Outlet} from "react-router-dom"
+ 
+ function App() {
+   const [count, setCount] = useState(0)
+ 
+   return (
+     <div>
+          <Navbar />
+          <Outlet />
+          <Footer />
+    </div>
+ 
+   );
+ };
+ 
+ export default App
+ 
+
+
+client/src/components/DrawerComp.jsx
+
+ import React, { useState } from "react";
+ import { useNavigate } from "react-router-dom"
+ 
+ import {
+   Drawer,
+   IconButton,
+   List,
+   ListItemButton,
+   ListItemIcon,
+   ListItemText,
+ } from "@mui/material";
+ import MenuIcon from '@mui/icons-material/Menu';
+ 
+ // const PAGES = ["Tournament", "League", "Login", "Logout", "Subscribe"];
+ 
+ const DrawerComp = () => {
+   const [openDrawer, setOpenDrawer] = useState(false);
+   const navigate = useNavigate(); 
+ 
+   const handleLeagueNav = () => {
+     setOpenDrawer(false);
+     setTimeout(() => {
+       navigate("/CreateLeague");
+     }, 200);
+   };
+   
+   const handleTournamentNav = () => {
+     setOpenDrawer(false);
+     setTimeout(() => {
+       navigate("/Tournament");
+     }, 200);
+   };
+ 
+   const handleLoginNav = () => {
+     setOpenDrawer(false);
+     setTimeout(() => {
+       navigate("/Login");
+     }, 200);
+   };
+ 
+   const handleLogoutNav = () => {
+     setOpenDrawer(false);
+     setTimeout(() => {
+       navigate("/Logout");
+     }, 200);
+   };
+   
+   const handleSubscribeNav = () => {
+     setOpenDrawer(false);
+     setTimeout(() => {
+       navigate("/Subscribe");
+     }, 200);
+   };
+ 
+   return (
+     <React.Fragment>
+       <Drawer
+         anchor="right" // Set anchor to right
+         open={openDrawer}
+         onClose={() => setOpenDrawer(false)}
+       >
+         <List>
+           <ListItemButton onClick={handleTournamentNav}>
+             <ListItemText primary="Tournament" />
+           </ListItemButton>
+ 
+           <ListItemButton onClick={handleLeagueNav}>
+             <ListItemText primary="League" />
+           </ListItemButton>
+ 
+           <ListItemButton onClick={handleLoginNav}>
+             <ListItemText primary="Login" />
+           </ListItemButton>
+ 
+           <ListItemButton onClick={handleLogoutNav}>
+             <ListItemText primary="Logout" />
+           </ListItemButton>
+ 
+           <ListItemButton onClick={handleSubscribeNav}>
+             <ListItemText primary="Subscribe" />
+           </ListItemButton>
+         </List>
+       </Drawer>
+       <IconButton 
+         sx={{ color: "white", marginLeft: "auto" }} 
+         onClick={() => setOpenDrawer(!openDrawer)}
+       >
+         <MenuIcon />
+       </IconButton>
+     </React.Fragment>
+   );
+ };
+ 
+ export default DrawerComp;
+ 
+
+
+client/src/components/Footer.jsx
+
+ import React from 'react';
+ import styled from 'styled-components';
+ import { FaGithub } from 'react-icons/fa';
+ 
+ const FooterContainer = styled.footer`
+   padding: 0px;
+   background-color: transparent;
+   color: white;
+   text-align: center;
+   width: 100vw;
+   position:absolute;
+   left:0;
+   bottom:0;
+   right:0;
+ `;
+ 
+ const SocialLink = styled.a`
+   margin: 0 2px;
+   color: white;
+   font-size: 1.5em;
+ 
+   &:hover {
+     color: #007bff;
+   }
+ `;
+ 
+ function Footer() {
+   return (
+     <FooterContainer>
+       <SocialLink href="https://github.com/CarlosLavayenJr/GoodGameOrg" target="_blank" rel="noopener noreferrer">
+         <FaGithub />
+       </SocialLink>
+         <footer className="footer">
+           <p>Made with ❤️️ &copy; 2024 Copy Pasta Purists</p>
+           </footer>
+     </FooterContainer>
+   );
+ }
+ 
+ export default Footer;
+ 
+
+
+client/src/components/LeagueList.jsx
+
+ import React, { useEffect, useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const LeagueList = () => {
+     const [leagues, setLeagues] = useState([]);
+ 
+     useEffect(() => {
+         const fetchLeagues = async () => {
+             const response = await axiosInstance.get('/leagues');
+             setLeagues(response.data);
+         };
+ 
+         fetchLeagues();
+     }, []);
+ 
+     return (
+         <div>
+             <h2>Leagues</h2>
+             <ul>
+                 {leagues.map(league => (
+                     <li key={league._id}>{league.name}</li>
+                 ))}
+             </ul>
+         </div>
+     );
+ };
+ 
+ export default LeagueList;
+ 
+
+
+client/src/components/Login.js
+
+ import React, { useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const Login = () => {
+     const [username, setUsername] = useState('');
+     const [password, setPassword] = useState('');
+ 
+     const handleLogin = async (e) => {
+         e.preventDefault();
+         try {
+             const response = await axiosInstance.post('/login', { username, password });
+             localStorage.setItem('token', response.data.token);
+             alert('User logged in successfully');
+         } catch (error) {
+             console.error('Login error', error);
+         }
+     };
+ 
+     return (
+         <form onSubmit={handleLogin}>
+             <input
+                 type="text"
+                 placeholder="Username"
+                 value={username}
+                 onChange={(e) => setUsername(e.target.value)}
+             />
+             <input
+                 type="password"
+                 placeholder="Password"
+                 value={password}
+                 onChange={(e) => setPassword(e.target.value)}
+             />
+             <button type="submit">Login</button>
+         </form>
+     );
+ };
+ 
+ export default Login;
+ 
+
+
+client/src/components/Login.jsx
+
+ import { useState } from 'react';
+ import { useMutation } from '@apollo/client';
+ import { Link } from 'react-router-dom';
+ import { LOGIN } from '../utils/mutations';
+ import Auth from '../utils/auth';
+ 
+ function Login(props) {
+   const [formState, setFormState] = useState({ email: '', password: '' });
+   const [login, { error }] = useMutation(LOGIN);
+ 
+   const handleFormSubmit = async (event) => {
+     event.preventDefault();
+     try {
+       const mutationResponse = await login({
+         variables: { email: formState.email, password: formState.password },
+       });
+       const token = mutationResponse.data.login.token;
+       Auth.login(token);
+     } catch (e) {
+       console.log(e);
+     }
+   };
+ 
+   const handleChange = (event) => {
+     const { name, value } = event.target;
+     setFormState({
+       ...formState,
+       [name]: value,
+     });
+   };
+ 
+   return (
+     <div className="container my-1">
+       <Link to="/signup">← Go to Signup</Link>
+ 
+       <h2>Login</h2>
+       <form onSubmit={handleFormSubmit}>
+         <div className="flex-row space-between my-2">
+           <label htmlFor="email">Email address:</label>
+           <input
+             placeholder="youremail@test.com"
+             name="email"
+             type="email"
+             id="email"
+             onChange={handleChange}
+           />
+         </div>
+         <div className="flex-row space-between my-2">
+           <label htmlFor="pwd">Password:</label>
+           <input
+             placeholder="******"
+             name="password"
+             type="password"
+             id="pwd"
+             onChange={handleChange}
+           />
+         </div>
+         {error ? (
+           <div>
+             <p className="error-text">The provided credentials are incorrect</p>
+           </div>
+         ) : null}
+         <div className="flex-row flex-end">
+           <button type="submit">Submit</button>
+         </div>
+       </form>
+     </div>
+   );
+ }
+ 
+ export default Login;
+ 
+
+
+client/src/components/MatchList.js
+
+ import React, { useEffect, useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const MatchList = ({ tournamentId }) => {
+     const [matches, setMatches] = useState([]);
+ 
+     useEffect(() => {
+         const fetchMatches = async () => {
+             const response = await axiosInstance.get(`/tournaments/${tournamentId}/matches`);
+             setMatches(response.data);
+         };
+ 
+         fetchMatches();
+     }, [tournamentId]);
+ 
+     return (
+         <div>
+             <h2>Matches</h2>
+             <ul>
+                 {matches.map(match => (
+                     <li key={match._id}>
+                         {match.homeTeam} vs {match.awayTeam} - {match.date}
+                     </li>
+                 ))}
+             </ul>
+         </div>
+     );
+ };
+ 
+ export default MatchList;
+ 
+
+
+client/src/components/Navbar.jsx
+
+ import React, { useState } from "react";
+ import {
+   AppBar,
+   Button,
+   Toolbar,
+   Typography,
+   useMediaQuery,
+   useTheme,
+   Box,
+ } from "@mui/material";
+ import DrawerComp from "./DrawerComp";
+ import { Link } from "react-router-dom";
+ 
+ const Navbar = () => {
+   const [value, setValue] = useState();
+   const theme = useTheme();
+   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
+ 
+   return (
+     <React.Fragment>
+       <AppBar sx={{ background: "#063970" }}>
+         <Toolbar>
+           <Link to="/">
+             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+               GOODGAMEORG
+             </Typography>
+           </Link>
+           {isMatch ? (
+             <DrawerComp />
+           ) : (
+             <>
+               <Box
+                 sx={{
+                   marginLeft: "auto",
+                   display: "flex",
+                   alignItems: "center",
+                 }}
+               >
+                 <Button
+                   sx={{ marginRight: "10px" }}
+                   variant="contained"
+                   color="secondary"
+                 >
+                   <Link to="">Login</Link>{" "}
+                 </Button>
+                 <Button
+                   sx={{ marginRight: "10px" }}
+                   variant="contained"
+                   color="secondary"
+                 >
+                   <Link to="">Register</Link>{" "}
+                 </Button>
+                 <Button
+                   sx={{ marginRight: "10px" }}
+                   variant="contained"
+                   color="secondary"
+                 >
+                   {" "}
+                   <a
+                     href="https://buy.stripe.com/test_3cs5m1fAX7hF8P6144"
+                     style={{ textDecoration: "none" }}
+                   >
+                     DONATE{" "}
+                   </a>
+                 </Button>
+               </Box>
+             </>
+           )}
+         </Toolbar>
+       </AppBar>
+     </React.Fragment>
+   );
+ };
+ 
+ export default Navbar;
+ 
+
+
+client/src/components/Register.js
+
+ import React, { useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const Register = () => {
+     const [username, setUsername] = useState('');
+     const [password, setPassword] = useState('');
+     const [setError] = useState(null);
+     const [confirmPass] = useState('');
+ 
+     const handleRegister = async (e) => {
+         e.preventDefault();
+ 
+         //Confirming the password is entered correctly
+         if (password !== confirmPass) {
+             setError('Password does not match!');
+             return;
+         }
+         setError(null);
+ 
+         try {
+             await axiosInstance.post('/register', { username, password });
+             alert('User registered successfully');
+         } catch (error) {
+             //Gives error message in console and to user
+             console.error('Registration Error!', error);
+             return res.status(400).json({message: 'Registration Error!'});
+         }
+     };
+ 
+     return (
+         <form onSubmit={handleRegister}>
+             <input
+                 type="text"
+                 placeholder="Username"
+                 value={username}
+                 onChange={(e) => setUsername(e.target.value)}
+             />
+             <input
+                 type="password"
+                 placeholder="Password"
+                 value={password}
+                 onChange={(e) => setPassword(e.target.value)}
+             />
+             <button type="submit">Register</button>
+         </form>
+     );
+ };
+ 
+ export default Register;
+ 
+
+
+client/src/components/TeamList.js
+
+ import React, { useEffect, useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const TeamList = ({ tournamentId }) => {
+     const [teams, setTeams] = useState([]);
+ 
+     useEffect(() => {
+         const fetchTeams = async () => {
+             const response = await axiosInstance.get(`/tournaments/${tournamentId}/teams`);
+             setTeams(response.data);
+         };
+ 
+         fetchTeams();
+     }, [tournamentId]);
+ 
+     return (
+         <div>
+             <h2>Teams</h2>
+             <ul>
+                 {teams.map(team => (
+                     <li key={team._id}>{team.name}</li>
+                 ))}
+             </ul>
+         </div>
+     );
+ };
+ 
+ export default TeamList;
+ 
+
+
+client/src/components/TournamentList.js
+
+ import React, { useEffect, useState } from 'react';
+ import axiosInstance from '../axiosInstance';
+ 
+ const TournamentList = () => {
+     const [tournaments, setTournaments] = useState([]);
+ 
+     useEffect(() => {
+         const fetchTournaments = async () => {
+             const response = await axiosInstance.get('/tournaments');
+             setTournaments(response.data);
+         };
+ 
+         fetchTournaments();
+     }, []);
+ 
+     return (
+         <div>
+             <h2>Tournaments</h2>
+             <ul>
+                 {tournaments.map(tournament => (
+                     <li key={tournament._id}>{tournament.name}</li>
+                 ))}
+             </ul>
+         </div>
+     );
+ };
+ 
+ export default TournamentList;
+ 
+
+
+client/src/index.css
+
+ :root {
+   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+   line-height: 1.5;
+   font-weight: 400;
+ 
+   color-scheme: light dark;
+   color: rgba(255, 255, 255, 0.87);
+ 
+   font-synthesis: none;
+   text-rendering: optimizeLegibility;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+ }
+ 
+ a {
+   font-weight: 500;
+   color: #ffffff;
+   text-decoration: inherit;
+ }
+ a:hover {
+   color: #caccfa;
+ }
+ 
+ body {
+   margin: 0;
+   display: flex;
+   min-width: 320px;
+   min-height: 100vh;
+   background-image: url('/assets/Background.jpg');
+   background-size: cover; /* Ensures the background covers the whole screen */
+   background-position: static; /* Centers the background image */
+   background-repeat: no-repeat; /* Prevents the background image from repeating */
+ }
+ 
+ a {
+   font-weight: 500;
+   color: white;
+   text-decoration: inherit;
+ }
+ a:hover {
+   color: white;
+ }
+ 
+ h1 {
+   font-size: 3.2em;
+   line-height: 1.1;
+   padding-top: 100px;
+ }
+ 
+ button {
+   border-radius: 8px;
+   border: 1px solid transparent;
+   padding: 0.6em 1.2em;
+   font-size: 1em;
+   font-weight: 500;
+   font-family: inherit;
+   background-color: #1a1a1a;
+   cursor: pointer;
+   transition: border-color 0.25s;
+ }
+ button:hover {
+   border-color: white;
+ }
+ button:focus,
+ button:focus-visible {
+   outline: 4px auto -webkit-focus-ring-color;
+ }
+ 
+ @media (prefers-color-scheme: light) {
+   :root {
+     color: #213547;
+     background-color: #ffffff;
+   }
+   a:hover {
+     color: #747bff;
+   }
+   button {
+     background-color: #f9f9f9;
+   }
+ }
+ 
+
+
+client/src/main.jsx
+
+ import React from 'react'
+ import ReactDOM from 'react-dom/client'
+ import App from './App.jsx'
+ import './index.css'
+ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+ import CreateLeague from "./pages/CreateLeague.jsx"
+ import HomePage from "./pages/HomePage.jsx"
+ // import CreateBracket from "./pages/"
+ 
+ const router = createBrowserRouter([
+   {
+     path: '/',
+     element: <App />,
+     children: [
+       {
+         index: true,
+         element: <HomePage />,
+       },
+       {
+         path: '/CreateLeague',
+         element: <CreateLeague />,
+       },
+     ],
+   },
+ ]);
+ 
+ 
+ 
+ // Render the RouterProvider component
+ ReactDOM.createRoot(document.getElementById('root')).render(
+   <RouterProvider router={router} />
+ );
+
+
+client/src/pages/CreateLeague.jsx
+
+ import React, { useState } from 'react';
+ 
+ const CreateLeague = () => {
+     const [leagueName, setLeagueName] = useState('');
+     const [teams, setTeams] = useState(['']);
+     const [numGames, setNumGames] = useState(0);
+     const [gameType, setGameType] = useState('');
+ 
+     const handleTeamChange = (index, event) => {
+         const newTeams = [...teams];
+         newTeams[index] = event.target.value;
+         setTeams(newTeams);
+     };
+ 
+     const addTeam = () => {
+         setTeams([...teams, '']);
+     };
+ 
+     const handleSubmit = (event) => {
+         event.preventDefault();
+         // Logic to handle form submission goes here
+         console.log({ leagueName, teams, category });
+     };
+ 
+     return (
+         <div>
+         <form onSubmit={handleSubmit} className='AddaLeague'>
+             <div>
+                 <label>
+                     League Name:
+                     <input
+                         type="text"
+                         value={leagueName}
+                         onChange={(e) => setLeagueName(e.target.value)}
+                         required
+                     />
+                 </label>
+             </div>
+             <div>
+                 <label>
+                     Category:
+                     <input
+                         type="text"
+                         value={gameType}
+                         onChange={(e) => setGameType(e.target.value)}
+                         required
+                     />
+                 </label>
+             </div>
+             <button type="submit">Create League</button>
+         </form>
+ 
+         <div class="AddTeams">
+                 <label>Teams:</label>
+                 {teams.map((team, index) => (
+                     <div key={index}>
+                         <input
+                             type="text"
+                             value={team}
+                             onChange={(e) => handleTeamChange(index, e)}
+                             required
+                         />
+                     </div>
+                 ))}
+                 <button type="button" onClick={addTeam}>Add Team</button>
+             </div>
+ 
+             <div class="TournamentsBox">
+                 <label class="TournTitle">Tournaments:</label>
+                 <p></p>
+             </div>
+ 
+         </div>
+     );
+ };
+ 
+ export default CreateLeague;
+ 
+
+
+client/src/pages/HomePage.jsx
+
+ import React, { useEffect, useState } from 'react';
+ 
+ const HomePage = () => {
+   const [data, setData] = useState(null);
+ 
+   useEffect(() => {
+     const fetchData = async () => {
+       try {
+         const response = await axios.get('/api/tournament-data');
+         setData(response.data);
+         window.bracketsViewer.render({
+           stages: response.data.stage,
+           matches: response.data.match,
+           matchGames: response.data.match_game,
+           participants: response.data.participant,
+         });
+       } catch (err) {
+         console.error('Failed to fetch tournament data:', err);
+       }
+     };
+ 
+     fetchData();
+   }, []);
+ 
+   return (
+     <div>
+       <h1>Welcome!<br />
+         Please log in!</h1>
+       <div id="tournament-viewer"></div>
+     </div>
+   );
+ };
+ 
+ export default HomePage;
+ 
+
+
+client/src/pages/LeaguesPage.jsx
+
+ import React from 'react';
+ import LeagueList from '../components/LeagueList';
+ import CreateLeague from './CreateLeague';
+ 
+ const LeaguesPage = () => {
+     return (
+         <div>
+             <h1>Leagues</h1>
+             <CreateLeague />
+             <LeagueList />
+         </div>
+     );
+ };
+ 
+ export default LeaguesPage;
+ 
+
+
+client/src/pages/TournamentsPage.js
+
+ // import React from 'react';
+ // import TournamentList from '../components/TournamentList';
+ // import CreateTournament from '../components/CreateTournament';
+ 
+ // const TournamentsPage = () => {
+ //     return (
+ //         <div>
+ //             <h1>Tournaments</h1>
+ //             <CreateTournament />
+ //             <TournamentList />
+ //         </div>
+ //     );
+ // };
+ 
+ // export default TournamentsPage;
+ 
+ import { useQuery } from '@apollo/client';
+ import { GET_TOURNAMENTS } from '../utils/queries'; // Import the query
+ 
+ const TournamentsPage = () => {
+   const { loading, error, data } = useQuery(GET_TOURNAMENTS);
+ 
+   if (loading) return 'Loading...';
+   if (error) return `Error! ${error.message}`;
+ 
+   return (
+     <div>
+       <h2>Tournaments</h2>
+       <ul>
+         {data.tournaments.map((tournament) => (
+           <li key={tournament._id}>{tournament.name}</li>
+         ))}
+       </ul>
+     </div>
+   );
+ };
+ 
+
+
+client/src/utils/auth.js
+
+ import decode from 'jwt-decode';
+ 
+ class AuthService {
+   getProfile() {
+     return decode(this.getToken());
+   }
+ 
+   loggedIn() {
+     // Checks if there is a saved token and it's still valid
+     const token = this.getToken();
+     return !!token && !this.isTokenExpired(token);
+   }
+ 
+   isTokenExpired(token) {
+     try {
+       const decoded = decode(token);
+       if (decoded.exp < Date.now() / 1000) {
+         return true;
+       } else return false;
+     } catch (err) {
+       return false;
+     }
+   }
+ 
+   getToken() {
+     // Retrieves the user token from localStorage
+     return localStorage.getItem('id_token');
+   }
+ 
+   login(idToken) {
+     // Saves user token to localStorage
+     localStorage.setItem('id_token', idToken);
+ 
+     window.location.assign('/');
+   }
+ 
+   logout() {
+     // Clear user token and profile data from localStorage
+     localStorage.removeItem('id_token');
+     // this will reload the page and reset the state of the application
+     window.location.assign('/');
+   }
+ }
+ 
+ export default new AuthService();
+ 
+
+
+client/src/utils/mutations.js
+
+ import { gql } from '@apollo/client';
+ 
+ export const LOGIN = gql`
+   mutation login($email: String!, $password: String!) {
+     login(email: $email, password: $password) {
+       token
+       user {
+         _id
+       }
+     }
+   }
+ `;
+ 
+ 
+ export const ADD_USER = gql`
+   mutation addUser(
+     $firstName: String!
+     $lastName: String!
+     $email: String!
+     $password: String!
+   ) {
+     addUser(
+       firstName: $firstName
+       lastName: $lastName
+       email: $email
+       password: $password
+     ) {
+       token
+       user {
+         _id
+       }
+     }
+   }
+ `;
+ 
+
+
+client/vite.config.js
+
+ import { defineConfig } from 'vite'
+ import react from '@vitejs/plugin-react'
+ 
+ // https://vitejs.dev/config/
+ export default defineConfig({
+   plugins: [react()],
+ })
+ 
+
+
+package.json
+
+ {
+   "name": "goodgameorg",
+   "version": "1.0.0",
+   "description": "<img src=\"./assets/Logo.png\" width=\"230\" height=\"200\">",
+   "main": "server/server.js",
+   "scripts": {
+     "start": "node server/server.js",
+     "develop": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\"",
+     "install": "cd server && npm i && cd ../client && npm i",
+     "seed": "cd server && npm run seed",
+     "build": "cd client && npm run build"
+   },
+   "keywords": [],
+   "author": "",
+   "license": "ISC",
+   "devDependencies": {
+     "concurrently": "^8.2.0"
+   },
+   "dependencies": {
+     "brackets-json-db": "^1.0.2",
+     "brackets-manager": "^1.6.4"
+   }
+ }
+ 
+
+
+server/config/cleanDB.js
+
+ const models = require('../models');
+ const db = require('../config/connection');
+ 
+ module.exports = async (modelName, collectionName) => {
+   try {
+     let modelExists = await models[modelName].db.db.listCollections({
+       name: collectionName
+     }).toArray()
+ 
+     if (modelExists.length) {
+       await db.dropCollection(collectionName);
+     }
+   } catch (err) {
+     throw err;
+   }
+ }
+ 
+
+
+server/config/connection.js
+
+ const mongoose = require('mongoose');
+ 
+ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/goodgame');
+ 
+ module.exports = mongoose.connection;
+ 
+
+
+server/db.json
+
+ {
+     "participant": [
+         {
+             "id": 0,
+             "tournament_id": 0,
+             "name": "Team 1"
+         },
+         {
+             "id": 1,
+             "tournament_id": 0,
+             "name": "Team 2"
+         },
+         {
+             "id": 2,
+             "tournament_id": 0,
+             "name": "Team 3"
+         },
+         {
+             "id": 3,
+             "tournament_id": 0,
+             "name": "Team 4"
+         },
+         {
+             "id": 4,
+             "tournament_id": 0,
+             "name": "Team 5"
+         },
+         {
+             "id": 5,
+             "tournament_id": 0,
+             "name": "Team 6"
+         },
+         {
+             "id": 6,
+             "tournament_id": 0,
+             "name": "Team 7"
+         },
+         {
+             "id": 7,
+             "tournament_id": 0,
+             "name": "Team 8"
+         }
+     ],
+     "stage": [
+         {
+             "id": 0,
+             "tournament_id": 0,
+             "name": "Example stage",
+             "type": "single_elimination",
+             "number": 1,
+             "settings": {
+                 "consolationFinal": false,
+                 "matchesChildCount": 0,
+                 "size": 8,
+                 "seedOrdering": [
+                     "inner_outer"
+                 ]
+             }
+         },
+         {
+             "id": 1,
+             "tournament_id": 0,
+             "name": "Example stage",
+             "type": "single_elimination",
+             "number": 2,
+             "settings": {
+                 "consolationFinal": false,
+                 "matchesChildCount": 0,
+                 "size": 8,
+                 "seedOrdering": [
+                     "inner_outer"
+                 ]
+             }
+         },
+         {
+             "id": 2,
+             "tournament_id": 0,
+             "name": "Example stage",
+             "type": "single_elimination",
+             "number": 3,
+             "settings": {
+                 "consolationFinal": false,
+                 "matchesChildCount": 0,
+                 "size": 8,
+                 "seedOrdering": [
+                     "inner_outer"
+                 ]
+             }
+         }
+     ],
+     "group": [
+         {
+             "id": 0,
+             "stage_id": 0,
+             "number": 1
+         },
+         {
+             "id": 1,
+             "stage_id": 1,
+             "number": 1
+         },
+         {
+             "id": 2,
+             "stage_id": 2,
+             "number": 1
+         }
+     ],
+     "round": [
+         {
+             "id": 0,
+             "number": 1,
+             "stage_id": 0,
+             "group_id": 0
+         },
+         {
+             "id": 1,
+             "number": 2,
+             "stage_id": 0,
+             "group_id": 0
+         },
+         {
+             "id": 2,
+             "number": 3,
+             "stage_id": 0,
+             "group_id": 0
+         },
+         {
+             "id": 3,
+             "number": 1,
+             "stage_id": 1,
+             "group_id": 1
+         },
+         {
+             "id": 4,
+             "number": 2,
+             "stage_id": 1,
+             "group_id": 1
+         },
+         {
+             "id": 5,
+             "number": 3,
+             "stage_id": 1,
+             "group_id": 1
+         },
+         {
+             "id": 6,
+             "number": 1,
+             "stage_id": 2,
+             "group_id": 2
+         },
+         {
+             "id": 7,
+             "number": 2,
+             "stage_id": 2,
+             "group_id": 2
+         },
+         {
+             "id": 8,
+             "number": 3,
+             "stage_id": 2,
+             "group_id": 2
+         }
+     ],
+     "match": [
+         {
+             "id": 0,
+             "number": 1,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 0,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 0,
+                 "position": 1
+             },
+             "opponent2": {
+                 "id": 7,
+                 "position": 8
+             }
+         },
+         {
+             "id": 1,
+             "number": 2,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 0,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 3,
+                 "position": 4
+             },
+             "opponent2": {
+                 "id": 4,
+                 "position": 5
+             }
+         },
+         {
+             "id": 2,
+             "number": 3,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 0,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 1,
+                 "position": 2
+             },
+             "opponent2": {
+                 "id": 6,
+                 "position": 7
+             }
+         },
+         {
+             "id": 3,
+             "number": 4,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 0,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 2,
+                 "position": 3
+             },
+             "opponent2": {
+                 "id": 5,
+                 "position": 6
+             }
+         },
+         {
+             "id": 4,
+             "number": 1,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 1,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 5,
+             "number": 2,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 1,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 6,
+             "number": 1,
+             "stage_id": 0,
+             "group_id": 0,
+             "round_id": 2,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 7,
+             "number": 1,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 3,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 0,
+                 "position": 1
+             },
+             "opponent2": {
+                 "id": 7,
+                 "position": 8
+             }
+         },
+         {
+             "id": 8,
+             "number": 2,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 3,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 3,
+                 "position": 4
+             },
+             "opponent2": {
+                 "id": 4,
+                 "position": 5
+             }
+         },
+         {
+             "id": 9,
+             "number": 3,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 3,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 1,
+                 "position": 2
+             },
+             "opponent2": {
+                 "id": 6,
+                 "position": 7
+             }
+         },
+         {
+             "id": 10,
+             "number": 4,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 3,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 2,
+                 "position": 3
+             },
+             "opponent2": {
+                 "id": 5,
+                 "position": 6
+             }
+         },
+         {
+             "id": 11,
+             "number": 1,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 4,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 12,
+             "number": 2,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 4,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 13,
+             "number": 1,
+             "stage_id": 1,
+             "group_id": 1,
+             "round_id": 5,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 14,
+             "number": 1,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 6,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 0,
+                 "position": 1
+             },
+             "opponent2": {
+                 "id": 7,
+                 "position": 8
+             }
+         },
+         {
+             "id": 15,
+             "number": 2,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 6,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 3,
+                 "position": 4
+             },
+             "opponent2": {
+                 "id": 4,
+                 "position": 5
+             }
+         },
+         {
+             "id": 16,
+             "number": 3,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 6,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 1,
+                 "position": 2
+             },
+             "opponent2": {
+                 "id": 6,
+                 "position": 7
+             }
+         },
+         {
+             "id": 17,
+             "number": 4,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 6,
+             "child_count": 0,
+             "status": 2,
+             "opponent1": {
+                 "id": 2,
+                 "position": 3
+             },
+             "opponent2": {
+                 "id": 5,
+                 "position": 6
+             }
+         },
+         {
+             "id": 18,
+             "number": 1,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 7,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 19,
+             "number": 2,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 7,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         },
+         {
+             "id": 20,
+             "number": 1,
+             "stage_id": 2,
+             "group_id": 2,
+             "round_id": 8,
+             "child_count": 0,
+             "status": 0,
+             "opponent1": {
+                 "id": null
+             },
+             "opponent2": {
+                 "id": null
+             }
+         }
+     ],
+     "match_game": []
+ }
+
+
+server/models/Category.js
+
+ // Category.js
+ const mongoose = require('mongoose');
+ 
+ const { Schema } = mongoose;
+ 
+ const categorySchema = new Schema(
+   {
+     name: { type: String, required: true, unique: true },
+     description: { type: String, default: '' },
+   },
+   { timestamps: true }
+ );
+ 
+ module.exports = mongoose.model('Category', categorySchema);
+ 
+
+
+server/models/League.js
+
+ const mongoose = require('mongoose');
+ 
+ const { Schema } = mongoose;
+ 
+ const leagueSchema = new Schema(
+   {
+     name: { type: String, required: true, unique: true },
+     description: { type: String, default: '' },
+     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+     teams: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
+     matches: [{ type: Schema.Types.ObjectId, ref: 'Match' }],
+     standings: [
+       {
+         team: { type: Schema.Types.ObjectId, ref: 'Team' },
+         points: { type: Number, default: 0 },
+         wins: { type: Number, default: 0 },
+         losses: { type: Number, default: 0 },
+         draws: { type: Number, default: 0 },
+       },
+     ],
+   },
+   { timestamps: true }
+ );
+ 
+ module.exports = mongoose.model('League', leagueSchema);
+
+
+server/models/Match.js
+
+ const mongoose = require('mongoose');
+ 
+ const { Schema } = mongoose;
+ 
+ const matchSchema = new Schema(
+   {
+     tournament: { type: Schema.Types.ObjectId, ref: 'Tournament', required: function() { return !this.league; } },
+     league: { type: Schema.Types.ObjectId, ref: 'League', required: function() { return !this.tournament; } },
+     team1: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
+     team2: { type: Schema.Types.ObjectId, ref: 'Team', required: true },
+     date: { type: Date, required: true },
+     result: {
+       team1Score: { type: Number, default: 0 },
+       team2Score: { type: Number, default: 0 },
+     },
+   },
+   { timestamps: true }
+ );
+ 
+ module.exports = mongoose.model('Match', matchSchema);
+
+
+server/models/Team.js
+
+ const mongoose = require('mongoose');
+ 
+ const { Schema } = mongoose;
+ 
+ const teamSchema = new Schema(
+   {
+     name: { type: String, required: true, unique: true },
+     players: [{ type: String }], // Array of player names
+     league: { type: Schema.Types.ObjectId, ref: 'League', required: function() { return !this.tournament; } },
+     tournament: { type: Schema.Types.ObjectId, ref: 'Tournament', required: function() { return !this.league; } },
+     images: [{ type: String }], // Array of image URLs
+     users: [{ type: Schema.Types.ObjectId, ref: 'User' }], // Add this line
+   },
+   { timestamps: true }
+ );
+ module.exports = mongoose.model('Team', teamSchema);
+
+
+server/models/Tournament.js
+
+ const mongoose = require('mongoose');
+ 
+ const { Schema } = mongoose;
+ 
+ const tournamentSchema = new Schema(
+   {
+     name: { type: String, required: true, unique: true },
+     description: { type: String, default: '' },
+     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+     startDate: { type: Date, required: true },
+     endDate: { type: Date, required: true },
+     teams: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
+     matches: [{ type: Schema.Types.ObjectId, ref: 'Match' }],
+   },
+   { timestamps: true }
+ );
+ 
+ module.exports = mongoose.model('Tournament', tournamentSchema);
+
+
+server/models/User.js
+
+ const mongoose = require('mongoose');
+ const bcrypt = require('bcrypt');
+ 
+ const { Schema } = mongoose;
+ 
+ const userSchema = new Schema(
+   {
+     firstName: {
+       type: String,
+       required: true,
+       trim: true,
+     },
+     lastName: {
+       type: String,
+       required: true,
+       trim: true,
+     },
+     email: {
+       type: String,
+       required: true,
+       unique: true,
+       lowercase: true,
+       trim: true,
+     },
+     password: {
+       type: String,
+       required: true,
+       minlength: 6,
+     },
+     
+   },
+   { timestamps: true }
+ );
+ 
+ // Set up pre-save middleware to hash the password
+ userSchema.pre('save', async function (next) {
+   if (this.isNew || this.isModified('password')) {
+     const saltRounds = 10;
+     this.password = await bcrypt.hash(this.password, saltRounds);
+   }
+ 
+   next();
+ });
+ 
+ // Compare the incoming password with the hashed password
+ userSchema.methods.isCorrectPassword = async function (password) {
+   return await bcrypt.compare(password, this.password);
+ };
+ 
+ module.exports = mongoose.model('User', userSchema);
+
+
+server/models/index.js
+
+ // index.js
+ const User = require('./User');
+ const League = require('./League');
+ const Match = require('./Match');
+ const Team = require('./Team');
+ const Tournament = require('./Tournament');
+ const Category = require('./Category');
+ 
+ module.exports = { User, League, Match, Team, Tournament, Category };
+ 
+
+
+server/package.json
+
+ {
+     "name": "goodgame",
+     "version": "1.0.0",
+     "description": "",
+     "main": "server.js",
+     "scripts": {
+       "start": "node server.js",
+       "dev": "nodemon server.js",
+       "seed": "node seeds/seed.js"
+     },
+     "keywords": [],
+     "author": "",
+     "license": "ISC",
+     "dependencies": {
+       "@apollo/server": "^4.7.2",
+       "bcrypt": "^4.0.1",
+       "express": "^4.17.2",
+       "graphql": "^16.6.0",
+       "jsonwebtoken": "^8.5.1",
+       "mongoose": "^8.0.0",
+       "stripe": "^8.67.0"
+     },
+     "devDependencies": {
+       "nodemon": "^2.0.2"
+     }
+   }
+   
+
+
+server/routes/tournamentRoutes.js
+
+ const express = require('express');
+ const { JsonDatabase } = require('brackets-json-db');
+ const { BracketsManager } = require('brackets-manager');
+ const { authMiddleware } = require('../utils/auth'); // Ensure this exports a middleware function
+ 
+ const router = express.Router();
+ const storage = new JsonDatabase();
+ const manager = new BracketsManager(storage);
+ 
+ router.get('/tournament-data', authMiddleware, async (req, res) => {
+   try {
+     const tournamentData = await manager.get.tournamentData();
+     res.json(tournamentData);
+   } catch (err) {
+     res.status(500).json({ error: 'Failed to retrieve tournament data' });
+   }
+ });
+ 
+ module.exports = router;
+ 
+
+
+server/schemas/index.js
+
+ const typeDefs = require('./typeDefs');
+ const resolvers = require('./resolvers');
+ 
+ module.exports = { typeDefs, resolvers };
+ 
+
+
+server/schemas/resolvers.js
+
+ const { User, League, Match, Team, Tournament, Category } = require('../models');
+ const { signToken, AuthenticationError } = require('../utils/auth');
+ const stripe = require('stripe')('sk_test_4eC39HqLyjWDarjtT1zdp7dc');
+ 
+ const resolvers = {
+   Query: {
+     categories: async () => {
+       return await Category.find();
+     },
+ 
+     leagues: async (parent, { category, name, location }) => {
+       const params = {};
+       if (category) params.category = category;
+       if (name) params.name = { $regex: name, $options: 'i' }; // added case-insensitive option
+       if (location) params.location = { $regex: location, $options: 'i' }; // added case-insensitive option
+       return await League.find(params).populate('category').populate('teams');
+     },
+ 
+     league: async (parent, { _id }) => {
+       return await League.findById(_id).populate('category').populate('teams');
+     },
+ 
+     teams: async (parent, { category, name, leagueId }) => {
+       const params = {};
+       if (category) params.category = category;
+       if (name) params.name = { $regex: name, $options: 'i' }; // added case-insensitive option
+       if (leagueId) params.league = leagueId; 
+       return await Team.find(params).populate('users').populate('league'); 
+     },
+ 
+     team: async (parent, { _id }) => {
+       return await Team.findById(_id).populate('users').populate('league');
+     },
+ 
+     matches: async (parent, { teamId, leagueId }) => {
+       const params = {};
+       if (teamId) {
+         params.$or = [{ team1: teamId }, { team2: teamId }];
+       }
+       if (leagueId) params.league = leagueId;
+       return await Match.find(params).populate('team1').populate('team2');
+     },
+ 
+     match: async (parent, { _id }) => {
+       return await Match.findById(_id).populate('team1').populate('team2');
+     },
+ 
+     checkout: async (parent, { leagueId }, context) => {
+       const url = new URL(context.headers.referer).origin;
+       const league = await League.findById(leagueId);
+ 
+       if (!league) {
+         throw new Error("League not found");
+       }
+ 
+       const session = await stripe.checkout.sessions.create({
+         payment_method_types: ['card'],
+         line_items: [
+           {
+             price_data: {
+               currency: 'usd',
+               product_data: {
+                 name: `Registration for ${league.name}`,
+                 description: league.description
+               },
+               unit_amount: league.registrationFee * 100, // Assuming you have a registrationFee field in League model
+             },
+             quantity: 1,
+           },
+         ],
+         mode: 'payment',
+         success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
+         cancel_url: `${url}`,
+       });
+ 
+       return { session: session.id };
+     },
+ 
+     tournaments: async (parent, { name, location }) => {
+       const params = {};
+       if (name) params.name = { $regex: name, $options: 'i' }; // added case-insensitive option
+       if (location) params.location = { $regex: location, $options: 'i' }; // added case-insensitive option
+       return await Tournament.find(params).populate('category').populate('teams').populate('matches');
+     },
+ 
+     tournament: async (parent, { _id }) => {
+       return await Tournament.findById(_id).populate('category').populate('teams').populate('matches');
+     },
+   },
+ 
+   Mutation: {
+     addUser: async (parent, args) => {
+       const user = await User.create(args);
+       const token = signToken(user);
+ 
+       return { token, user };
+     },
+ 
+     updateUser: async (parent, args, context) => {
+       if (context.user) {
+         return await User.findByIdAndUpdate(context.user._id, args, { new: true });
+       }
+ 
+       throw AuthenticationError;
+     },
+ 
+     login: async (parent, { email, password }) => {
+       const user = await User.findOne({ email });
+ 
+       if (!user) {
+         throw AuthenticationError;
+       }
+ 
+       const correctPw = await user.isCorrectPassword(password);
+ 
+       if (!correctPw) {
+         throw AuthenticationError;
+       }
+ 
+       const token = signToken(user);
+ 
+       return { token, user };
+     },
+ 
+     addTeam: async (parent, { name, description, image, captain, league }, context) => {
+       if (context.user) {
+         // Check if a team with the same name and league already exists
+         const existingTeam = await Team.findOne({ name, league });
+         if (existingTeam) {
+           throw new Error('Team with this name and league already exists');
+         }
+     
+         const team = await Team.create({ name, description, image, captain, league });
+         await League.findByIdAndUpdate(league, { $push: { teams: team._id } });
+         return team;
+       }
+       throw AuthenticationError;
+     },
+ 
+     updateTeam: async (parent, { _id, ...args }, context) => {
+       if (context.user) {
+         return await Team.findByIdAndUpdate(_id, args, { new: true });
+       }
+       throw AuthenticationError;
+     },
+ 
+     createLeague: async (parent, { name, location, category, startDate, endDate, format }, context) => {
+       if (context.user) {
+         // Check if a league with the same name and location already exists
+         const existingLeague = await League.findOne({ name, location });
+         if (existingLeague) {
+           throw new Error('League with this name and location already exists');
+         }
+     
+         const league = await League.create({ name, location, category, startDate, endDate, format });
+         return league;
+       }
+       throw AuthenticationError;
+     },
+ 
+     updateLeague: async (parent, { _id, name, location, category, startDate, endDate, format }, context) => {
+       if (context.user) {
+         return await League.findByIdAndUpdate(_id, { name, location, category, startDate, endDate, format }, { new: true });
+       }
+       throw AuthenticationError;
+     },
+ 
+     deleteLeague: async (parent, { _id }, context) => {
+       if (context.user) {
+         return await League.findByIdAndDelete(_id);
+       }
+       throw AuthenticationError;
+     },
+ 
+     createMatch: async (parent, args, context) => {
+       if (context.user) {
+         const { tournament, league, team1, team2, date, location } = args;
+     
+         const matchData = {
+           team1,
+           team2,
+           date,
+           location,
+         };
+     
+         if (tournament) {
+           matchData.tournament = tournament;
+         } else if (league) {
+           matchData.league = league;
+         } else {
+           throw new Error('Either tournament or league must be provided');
+         }
+     
+         const match = await Match.create(matchData);
+     
+         if (tournament) {
+           await Tournament.findByIdAndUpdate(tournament, { $push: { matches: match._id } });
+         } else if (league) {
+           await League.findByIdAndUpdate(league, { $push: { matches: match._id } });
+         }
+     
+         return match;
+       }
+       throw AuthenticationError;
+     },
+     
+ 
+     updateMatch: async (parent, { _id, ...args }, context) => {
+       if (context.user) {
+         return await Match.findByIdAndUpdate(_id, args, { new: true });
+       }
+       throw AuthenticationError;
+     },
+ 
+     deleteMatch: async (parent, { _id }, context) => {
+       if (context.user) {
+         return await Match.findByIdAndDelete(_id);
+       }
+       throw AuthenticationError;
+     },
+ 
+     createTournament: async (parent, { name, category, startDate, endDate, location }, context) => {
+       if (context.user) {
+         // Check if a tournament with the same name and location already exists
+         const existingTournament = await Tournament.findOne({ name, location });
+         if (existingTournament) {
+           throw new Error('Tournament with this name and location already exists');
+         }
+     
+         const tournament = await Tournament.create({ name, category, startDate, endDate, location });
+         return tournament;
+       }
+       throw AuthenticationError;
+     },
+ 
+     updateTournament: async (parent, { _id, name, category, startDate, endDate, location }, context) => {
+       if (context.user) {
+         return await Tournament.findByIdAndUpdate(_id, { name, category, startDate, endDate, location }, { new: true });
+       }
+       throw AuthenticationError;
+     },
+ 
+     deleteTournament: async (parent, { _id }, context) => {
+       if (context.user) {
+         return await Tournament.findByIdAndDelete(_id);
+       }
+       throw AuthenticationError;
+     },
+     addCategory: async (parent, args, context) => {
+       if (context.user) {
+         const { name } = args;
+     
+         // Check if the category name already exists
+         const existingCategory = await Category.findOne({ name });
+         if (existingCategory) {
+           throw new Error('Category with this name already exists');
+         }
+     
+         const newCategory = await Category.create(args);
+         return newCategory;
+       }
+       throw AuthenticationError;
+     },
+ 
+     updateCategory: async (parent, { _id, ...args }, context) => {
+       if (context.user) {
+         return await Category.findByIdAndUpdate(_id, args, { new: true });
+       }
+       throw AuthenticationError;
+     },
+ 
+     deleteCategory: async (parent, { _id }, context) => {
+       if (context.user) {
+         return await Category.findByIdAndDelete(_id);
+       }
+       throw AuthenticationError;
+     },
+   },
+ };
+ 
+ module.exports = resolvers;
+ 
+
+
+server/schemas/typeDefs.js
+
+ const typeDefs = `
+   type Category {
+     _id: ID
+     name: String
+     description: String
+   }
+ 
+   type Team {
+   _id: ID!
+   name: String!
+   description: String
+   image: String # URL for image
+   captain: User # Reference to the team captain (User type)
+   record: [Int] # Array of [wins, losses]
+   users: [User]!
+   league: League # Reference to the league the team belongs to
+   tournament: Tournament # Reference to the tournament the team belongs to
+   matches: [Match]
+ }
+ 
+   type League {
+     _id: ID!
+     name: String!
+     location: String
+     category: Category!
+     startDate: String
+     endDate: String
+     format: String  # e.g., "round robin," "tournament"
+     teams: [Team]!
+     matches: [Match]
+   }
+ 
+   type Tournament {
+     _id: ID!
+     name: String!
+     category: Category!
+     startDate: String!
+     endDate: String!
+     location: String
+     teams: [Team]!
+     matches: [Match]
+   }
+ 
+   type User {
+     _id: ID
+     firstName: String
+     lastName: String
+     email: String
+     teams: [Team]
+     matches: [Match]
+     leagues: [League]
+   }
+ 
+   type Match {
+   _id: ID!
+   tournament: Tournament
+   league: League
+   team1: Team!
+   team2: Team!
+   date: String!
+   result: MatchResult
+ }
+ 
+ type MatchResult {
+   team1Score: Int
+   team2Score: Int
+ }
+   type Auth {
+     token: ID
+     user: User
+   }
+ 
+   type Checkout {
+     session: ID
+   }
+ 
+   type Query {
+     categories: [Category]
+     leagues(category: ID, name: String, location: String): [League]
+     league(_id: ID!): League
+     teams(league: ID, tournament: ID): [Team]
+     team(_id: ID!): Team
+     user: User
+     matches(teamId: ID, leagueId: ID): [Match] # Filter by team or league
+     match(_id: ID!): Match
+     tournaments(name: String, location: String): [Tournament]
+     tournament(_id: ID!): Tournament
+     checkout(leagueId: ID!): Checkout
+   }
+ 
+   type Mutation {
+     addUser(firstName: String!, lastName: String!, email: String!, password: String!): Auth
+     addTeam(name: String!, description: String, image: String, captain: ID, league: ID!, tournament: ID): Team
+     updateUser(firstName: String, lastName: String, email: String, password: String): User
+     updateTeam(_id: ID!, name: String, description: String, image: String, captain: ID, league: ID, tournament: ID): Team
+     createLeague(name: String!, location: String, category: ID!, startDate: String, endDate: String, format: String): League
+     updateLeague(_id: ID!, name: String, location: String, category: ID, startDate: String, endDate: String, format: String): League
+     deleteLeague(_id: ID!): League
+     createMatch(tournament: ID, league: ID, team1: ID!, team2: ID!, date: String!, location: String,): Match
+     updateMatch(_id: ID!, team1Score: Int, team2Score: Int, winner: ID): Match
+     deleteMatch(_id: ID!): Match
+     createTournament(name: String!, category: ID!, startDate: String!, endDate: String!, location: String): Tournament
+     updateTournament(_id: ID!, name: String, category: ID!, startDate: String, endDate: String, location: String): Tournament
+     deleteTournament(_id: ID!): Tournament
+     addCategory(name: String!, description: String): Category
+     updateCategory(_id: ID!, name: String, description: String): Category
+     deleteCategory(_id: ID!): Category
+     login(email: String!, password: String!): Auth
+   }
+ `;
+ 
+ module.exports = typeDefs;
+ 
+
+
+server/seeds/seed.js
+
+ const { JsonDatabase } = require('brackets-json-db');
+ const { BracketsManager } = require('brackets-manager');
+ const path = require('path');
+ const fs = require('fs');
+ 
+ const seedDatabase = async () => {
+   const storage = new JsonDatabase();
+   const manager = new BracketsManager(storage);
+ 
+   try {
+     const seedData = JSON.parse(fs.readFileSync(path.join(__dirname, 'seed.json'), 'utf-8'));
+ 
+     // Assuming seedData.json contains stages and other relevant data
+     for (const stage of seedData.stages) {
+       await manager.create(stage);
+     }
+ 
+     console.log('Database seeded successfully');
+   } catch (err) {
+     console.error('Error seeding database:', err);
+   }
+ };
+ 
+ seedDatabase();
+ 
+
+
+server/seeds/seed.json
+
+ {
+     "stages": [
+       {
+         "name": "Example stage",
+         "tournamentId": 0,
+         "type": "single_elimination",
+         "seeding": [
+           "Team 1",
+           "Team 2",
+           "Team 3",
+           "Team 4",
+           "Team 5",
+           "Team 6",
+           "Team 7",
+           "Team 8"
+         ]
+       }
+     ]
+   }
+   
+
+
+server/server.js
+
+ const express = require('express');
+ const { ApolloServer } = require('@apollo/server');
+ const { expressMiddleware } = require('@apollo/server/express4');
+ const path = require('path');
+ const { authMiddleware } = require('./utils/auth');
+ 
+ const { typeDefs, resolvers } = require('./schemas');
+ const db = require('./config/connection');
+ 
+ const PORT = process.env.PORT || 3001;
+ const app = express();
+ const server = new ApolloServer({
+   typeDefs,
+   resolvers,
+ });
+ 
+ // Import the tournament routes
+ const tournamentRoutes = require('./routes/tournamentRoutes');
+ 
+ // Create a new instance of an Apollo server with the GraphQL schema
+ const startApolloServer = async () => {
+   await server.start();
+ 
+   app.use(express.urlencoded({ extended: false }));
+   app.use(express.json());
+ 
+   // Serve up static assets
+   app.use('/images', express.static(path.join(__dirname, '../client/images')));
+ 
+   app.use('/graphql', expressMiddleware(server, {
+     context: authMiddleware
+   }));
+ 
+     // Use the tournament routes
+     app.use('/api', tournamentRoutes);
+ 
+   if (process.env.NODE_ENV === 'production') {
+     app.use(express.static(path.join(__dirname, '../client/dist')));
+ 
+     app.get('*', (req, res) => {
+       res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+     });
+   }
+ 
+   db.once('open', () => {
+     app.listen(PORT, () => {
+       console.log(`API server running on port ${PORT}!`);
+       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
+     });
+   });
+ };
+ 
+ // Call the async function to start the server
+ startApolloServer();
+ 
+
+
+server/utils/auth.js
+
+ const { GraphQLError } = require('graphql');
+ const jwt = require('jsonwebtoken');
+ 
+ const secret = 'mysecretssshhhhhhh';
+ const expiration = '2h';
+ 
+ const authMiddleware = (req, res, next) => {
+   // allows token to be sent via req.body, req.query, or headers
+   let token = req.body.token || req.query.token || req.headers.authorization;
+ 
+   // ["Bearer", "<tokenvalue>"]
+   if (req.headers.authorization) {
+     token = token.split(' ').pop().trim();
+   }
+ 
+   if (!token) {
+     return res.status(401).json({ message: 'No token provided' });
+   }
+ 
+   try {
+     const { data } = jwt.verify(token, secret, { maxAge: expiration });
+     req.user = data;
+     next();
+   } catch {
+     console.log('Invalid token');
+     return res.status(401).json({ message: 'Invalid token' });
+   }
+ };
+ 
+ module.exports = {
+   AuthenticationError: new GraphQLError('Could not authenticate user.', {
+     extensions: {
+       code: 'UNAUTHENTICATED',
+     },
+   }),
+   authMiddleware,
+   signToken: function ({ firstName, email, _id }) {
+     const payload = { firstName, email, _id };
+ 
+     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
+   },
+ };
+ 

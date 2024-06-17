@@ -16,6 +16,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fs": "^0.0.1-security",
     "html-webpack-plugin": "^5.6.0",
     "if-env": "^1.0.4",
     "ignore": "^5.3.1"

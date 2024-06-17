@@ -5,6 +5,7 @@ function App() {
   const [outputMessage, setOutputMessage] = useState('');
   const [downloadLink, setDownloadLink] = useState('');
   const [fileName, setFileName] = useState(''); // New state for filename
+  const [editingFileName, setEditingFileName] = useState(false);
   const maxCharsPath = 255; // Max characters for path input
   const maxCharsFilename = 60;
 
@@ -20,19 +21,29 @@ function App() {
 
   const handleProcessFiles = async () => {
     try {
-      const response = await fetch('http://localhost:3000/process_react_app', { // Use the correct port
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/process_react_app", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ folderPath }),
+        body: JSON.stringify({ folderPath, fileName }),
       });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "An error occurred");
+      }
 
       const data = await response.json();
       setOutputMessage(data.message);
-      setDownloadLink(data.fileName ? `http://localhost:3000/download/${data.fileName}` : ''); 
+
+      if (data.fileName) {
+        setDownloadLink(`http://localhost:3000/download/${data.fileName}`);
+      } else {
+        setDownloadLink("");
+      }
     } catch (error) {
-      setOutputMessage('Error processing files');
+      setOutputMessage(`Error processing files: ${error.message}`);
       console.error(error);
     }
   };
@@ -40,21 +51,25 @@ function App() {
   return (
     <div>
       <h1>React App to TXT Converter</h1>
-      <input
-        type="text"
-        value={folderPath}
-        onChange={handleInputChange}
-        placeholder="Enter the folder path"
-        maxLength={maxCharsPath}
-      />
-
       <input // New input for filename
         type="text"
         value={fileName}
         onChange={handleFileNameChange}
         placeholder="Enter the filename (max 60 characters)"
         maxLength={maxCharsFilename}
-      />
+        disabled={!editingFileName}
+      /><br />
+      <button onClick={() => setEditingFileName(!editingFileName)}>
+        {editingFileName ? "Save Name" : "Edit Name"}
+      </button>
+      <br />
+      <input
+        type="text"
+        value={folderPath}
+        onChange={handleInputChange}
+        placeholder="Enter the folder path"
+        maxLength={maxCharsPath}
+      /><br />
 
       <button onClick={handleProcessFiles}>Process Files</button>
 
@@ -64,7 +79,7 @@ function App() {
         <p>{outputMessage}</p>
         {downloadLink && (
           <a href={downloadLink} download>
-            Download Project.txt
+            Download .txt File
           </a>
         )}
       </div>

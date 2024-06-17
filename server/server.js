@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs'); 
 const { createTxtFromReactApp } = require('./react_to_txt');
 const cors = require('cors');
 
@@ -11,16 +12,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname,)));
 
-app.post('/process_react_app', (req, res) => {
-  const { folderPath } = req.body;
+app.post('/process_react_app', async (req, res) => {
+  const { folderPath, fileName } = req.body;
 
   try {
-    const outputFile = path.join(__dirname, 'Project.txt');
+    const downloadsDir = path.join(__dirname, 'downloads'); 
+    if (!fs.existsSync(downloadsDir)) {
+      fs.mkdirSync(downloadsDir);
+    }
+
+    const outputFile = path.join(downloadsDir, fileName + ".txt"); 
 
     console.log(`Processing folder: ${folderPath}`);
 
-    createTxtFromReactApp(folderPath, outputFile);
-    res.json({ message: 'Project.txt created successfully!', fileName: 'Project.txt' });
+    await createTxtFromReactApp(folderPath, outputFile);
+    res.json({ message: '.txt created successfully!', fileName: fileName + ".txt" });
   } catch (error) {
     console.error(`Server error: ${error}`);
     res.status(500).json({ message: `Server error: ${error}` });
@@ -29,11 +35,17 @@ app.post('/process_react_app', (req, res) => {
 //This function creates the download route for the user after the file is successfully created.
 app.get('/download/:fileName', (req, res) => {
   const fileName = req.params.fileName;
-  const file = path.join(__dirname, fileName);
-  res.download(file, (err) => {
+  const filePath = path.join(__dirname, "downloads", fileName);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: "File not found" });
+  }
+
+  res.download(filePath, (err) => {
     if (err) {
-      res.status(500).send({
-        message: "Could not download the file. " + err,
+      console.error(`Error downloading file: ${err.message}`);
+      res.status(500).json({
+        message: "Could not download the file.",
+        error: err.message,
       });
     }
   });
