@@ -134,3 +134,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# 2026 baseline
+.env
+.env.*
+!.env.example
+.DS_Store
+node_modules/
+dist/
+coverage/
+*.log

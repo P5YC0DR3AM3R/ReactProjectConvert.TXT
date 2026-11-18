@@ -8,7 +8,8 @@
     "start": "npm run build && node server/server.js",
     "server": "cd server && nodemon server.js",
     "build": "cd client && npm run build",
-    "client": "cd client && npm start"
+    "client": "cd client && npm start",
+    "test": "echo check-via-ci"
   },
   "keywords": [],
   "author": "",
@@ -16,9 +17,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "fs": "^0.0.1-security",
     "html-webpack-plugin": "^5.6.0",
-    "if-env": "^1.0.4",
     "ignore": "^5.3.1"
   },
   "devDependencies": {
@@ -33,5 +32,8 @@
     "webpack": "^5.92.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
