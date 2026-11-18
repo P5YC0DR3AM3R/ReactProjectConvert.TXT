@@ -55,7 +55,7 @@ jobs:
             sys.exit(1)
           print('secret scan ok')
           PY
-          if find . -name .DS_Store -not -path './.git/*' -print -quit | grep -q .; then
+          if find . -name .DS_Store -not -path './.git/*' -not -path '*/node_modules/*' -print -quit | grep -q .; then
             echo '.DS_Store present'
             exit 1
           fi
