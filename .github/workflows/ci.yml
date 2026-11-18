@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: check
+        run: |
+          set -e
+          if [ -f package-lock.json ]; then npm ci; else echo 'no root lock'; fi
+          if [ -f server/package-lock.json ]; then (cd server && npm ci); fi
+          if [ -f client/package-lock.json ]; then (cd client && npm ci); fi
+          find . -name '*.js' \
+            -not -path '*/node_modules/*' \
+            -not -path '*/dist/*' \
+            -not -path '*/client/src/*' \
+            -print0 | xargs -0 -n1 node --check
+          echo 'syntax ok'
+          python3 - << 'PY'
+          import os, re, sys
+          bad = []
+          pats = [
+            re.compile(r"myApiKey\s*=\s*['\"][0-9a-f]{32}['\"]"),
+            re.compile(r"secret\s*[:=]\s*['\"]Super secret secret['\"]"),
+            re.compile(r"secret\s*=\s*['\"]mysecretsshhhhh['\"]"),
+            re.compile(r"password:\s*['\"]rootroot['\"]"),
+          ]
+          for dp, dns, fns in os.walk('.'):
+            if '/.git' in dp or 'node_modules' in dp:
+              continue
+            for f in fns:
+              if not f.endswith(('.js', '.html', '.mjs', '.cjs')):
+                continue
+              t = open(os.path.join(dp, f), errors='replace').read()
+              if any(p.search(t) for p in pats):
+                bad.append(os.path.join(dp, f))
+          if bad:
+            print('committed credential pattern:', bad)
+            sys.exit(1)
+          print('secret scan ok')
+          PY
+          if find . -name .DS_Store -not -path './.git/*' -print -quit | grep -q .; then
+            echo '.DS_Store present'
+            exit 1
+          fi
+
